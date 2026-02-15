@@ -1,5 +1,5 @@
 # school-food-system
-@@ -0,0 +1,52 @@
+
 # School Food System (Flask + SQLite)
 
 В исходном проекте вся «работа с БД» была реализована на фронтенде через `localStorage`.
