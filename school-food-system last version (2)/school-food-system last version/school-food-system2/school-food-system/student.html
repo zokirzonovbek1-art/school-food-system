@@ -1,0 +1,554 @@
+```
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет - Ученик</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="student.html" class="nav-brand">
+                <i class="fas fa-utensils"></i>
+                <span>Школьное Питание</span>
+            </a>
+            <div class="nav-user">
+                <div class="user-info">
+                    <div class="user-name" id="user-name"></div>
+                    <div class="user-role" id="user-role"></div>
+                </div>
+                <div class="user-avatar" id="user-avatar"></div>
+                <button class="btn btn-sm ml-1" id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <!-- Боковая панель -->
+            <div class="col-3">
+                <div class="card">
+                    <div class="user-profile">
+                        <div class="profile-avatar" id="profile-avatar"></div>
+                        <h3 id="profile-name"></h3>
+                        <p class="profile-class" id="profile-class"></p>
+                        <div class="profile-balance">
+                            <i class="fas fa-wallet"></i>
+                            Баланс: <span id="profile-balance">0</span> руб.
+                        </div>
+                        <button class="btn btn-primary btn-block mt-2" id="add-balance-btn">
+                            <i class="fas fa-plus"></i> Пополнить баланс
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4>Навигация</h4>
+                    <div class="nav-menu">
+                        <button class="nav-btn active" data-page="menu">
+                            <i class="fas fa-utensils"></i> Меню
+                        </button>
+                        <button class="nav-btn" data-page="orders">
+                            <i class="fas fa-receipt"></i> Мои заказы
+                        </button>
+                        <button class="nav-btn" data-page="subscriptions">
+                            <i class="fas fa-calendar-alt"></i> Абонементы
+                        </button>
+                        <button class="nav-btn" data-page="profile">
+                            <i class="fas fa-user"></i> Мой профиль
+                        </button>
+                        <button class="nav-btn" data-page="reviews">
+                            <i class="fas fa-star"></i> Мои отзывы
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4>Аллергии и предпочтения</h4>
+                    <div id="allergies-list">
+                        <!-- Загружается через JavaScript -->
+                    </div>
+                    <button class="btn btn-secondary btn-block mt-2" id="edit-allergies-btn">
+                        <i class="fas fa-edit"></i> Изменить
+                    </button>
+                </div>
+            </div>
+
+            <!-- Основной контент -->
+            <div class="col-8">
+                <div class="page-header">
+                    <h2 id="page-title">Меню на сегодня</h2>
+                    <div class="date-filter">
+                        <input type="date" id="menu-date" value="">
+                        <button class="btn btn-secondary" id="today-btn">Сегодня</button>
+                    </div>
+                </div>
+
+                <!-- Страница меню -->
+                <div id="menu-page" class="page-content active">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Завтраки</h3>
+                            <div class="menu-type-filter">
+                                <button class="btn-filter active" data-type="all">Все</button>
+                                <button class="btn-filter" data-type="breakfast">Завтраки</button>
+                                <button class="btn-filter" data-type="lunch">Обеды</button>
+                            </div>
+                        </div>
+                        <div id="breakfast-menu" class="menu-items">
+                            <!-- Заполняется через JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Обеды</h3>
+                        </div>
+                        <div id="lunch-menu" class="menu-items">
+                            <!-- Заполняется через JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Страница заказов -->
+                <div id="orders-page" class="page-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Мои заказы</h3>
+                            <div class="order-filter">
+                                <select id="order-status-filter">
+                                    <option value="all">Все заказы</option>
+                                    <option value="pending">Ожидают оплаты</option>
+                                    <option value="paid">Оплаченные</option>
+                                    <option value="received">Полученные</option>
+                                    <option value="cancelled">Отмененные</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="orders-table">
+                                <thead>
+                                    <tr>
+                                        <th>Дата</th>
+                                        <th>Блюдо</th>
+                                        <th>Тип</th>
+                                        <th>Цена</th>
+                                        <th>Статус</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Заполняется через JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Страница профиля -->
+                <div id="profile-page" class="page-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Мой профиль</h3>
+                        </div>
+                        <div class="profile-form">
+                            <div class="form-group">
+                                <label>ФИО</label>
+                                <input type="text" id="profile-fullname" class="form-control" value="">
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="email" id="profile-email" class="form-control" value="">
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Класс</label>
+                                        <input type="text" id="profile-class-input" class="form-control" value="">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Пищевые предпочтения</label>
+                                <textarea id="profile-preferences" class="form-control" rows="3"></textarea>
+                            </div>
+                            <button class="btn btn-primary" id="save-profile-btn">
+                                <i class="fas fa-save"></i> Сохранить изменения
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h4>Аллергии</h4>
+                        <div class="allergies-edit">
+                            <div class="selected-allergies" id="selected-allergies">
+                                <!-- Выбранные аллергии -->
+                            </div>
+                            <div class="form-group">
+                                <label>Добавить аллергию</label>
+                                <div class="d-flex">
+                                    <input type="text" id="new-allergy" class="form-control" placeholder="Например: молоко">
+                                    <button class="btn btn-secondary ml-1" id="add-allergy-btn">
+                                        <i class="fas fa-plus"></i> Добавить
+                                    </button>
+                                </div>
+                                <p class="form-hint">Нажмите на аллергию, чтобы удалить</p>
+                            </div>
+                            <div class="common-allergies">
+                                <p>Распространенные аллергены:</p>
+                                <div class="common-allergies-list">
+                                    <span class="badge badge-secondary allergy-option">молоко</span>
+                                    <span class="badge badge-secondary allergy-option">орехи</span>
+                                    <span class="badge badge-secondary allergy-option">яйца</span>
+                                    <span class="badge badge-secondary allergy-option">глютен</span>
+                                    <span class="badge badge-secondary allergy-option">рыба</span>
+                                    <span class="badge badge-secondary allergy-option">соя</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Страница отзывов -->
+                <div id="reviews-page" class="page-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Мои отзывы</h3>
+                            <button class="btn btn-primary" id="add-review-btn">
+                                <i class="fas fa-plus"></i> Новый отзыв
+                            </button>
+                        </div>
+                        <div id="reviews-list">
+                            <!-- Отзывы загружаются через JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Страница абонементов -->
+<div id="subscriptions-page" class="page-content">
+
+    <!-- Верхняя панель: баланс + корзина -->
+    <div class="sub-top-panel">
+        <div class="sub-balance-block">
+            <div class="sub-balance-icon-wrap">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="5" width="20" height="14" rx="2"/>
+                    <line x1="2" y1="10" x2="22" y2="10"/>
+                </svg>
+            </div>
+            <div class="sub-balance-data">
+                <span class="sub-balance-label">Баланс счёта</span>
+                <span class="sub-balance-sum" id="sub-balance-display">
+                    <span class="sub-loading-dot"></span> Загрузка...
+                </span>
+            </div>
+            <button class="sub-btn sub-btn-glass sub-btn-sm" onclick="SubModule.showTopupModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Пополнить
+            </button>
+        </div>
+        <button class="sub-btn sub-btn-cart" onclick="SubModule.toggleCart()" id="sub-cart-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            <span>Корзина</span>
+            <span class="sub-cart-count hidden" id="sub-cart-count">0</span>
+        </button>
+    </div>
+
+    <!-- Блок: Каталог абонементов -->
+    <div class="card sub-section">
+        <div class="card-header sub-section-header">
+            <h3 class="card-title sub-section-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="18" rx="2"/>
+                    <path d="M2 8h20"/><path d="M9 3v5"/>
+                </svg>
+                Абонементы на питание
+            </h3>
+        </div>
+
+        <!-- Баннер -->
+        <div class="sub-banner" id="sub-banner">
+            <div class="sub-banner-glow"></div>
+            <svg class="sub-banner-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            <div class="sub-banner-body">
+                <strong>Экономьте до 20% с абонементами!</strong>
+                <span>Чем больше дней — тем выше скидка. Абонементы действуют в течение календарного месяца.</span>
+            </div>
+        </div>
+
+        <!-- Фильтры -->
+        <div class="sub-filters" id="sub-filters">
+            <!-- Генерируются из JS -->
+        </div>
+
+        <!-- Каталог -->
+        <div class="subscription-plans" id="subscription-plans">
+            <div class="sub-loader" id="sub-catalog-loader">
+                <div class="sub-spinner"></div>
+                <span>Загрузка абонементов...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Блок: Активные абонементы -->
+    <div class="card sub-section">
+        <div class="card-header sub-section-header">
+            <h3 class="card-title sub-section-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                Мои активные абонементы
+            </h3>
+        </div>
+
+        <div id="sub-active-cards">
+            <div class="sub-loader" id="sub-active-loader">
+                <div class="sub-spinner"></div>
+                <span>Загрузка...</span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table" id="subscriptions-table">
+                <thead>
+                    <tr>
+                        <th>Тип</th>
+                        <th>Дата начала</th>
+                        <th>Дата окончания</th>
+                        <th>Осталось</th>
+                        <th>Прогресс</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody id="sub-table-body">
+                    <tr>
+                        <td colspan="6" class="sub-td-loading">
+                            <div class="sub-spinner sub-spinner-sm"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Блок: История -->
+    <div class="card sub-section">
+        <div class="card-header sub-section-header">
+            <h3 class="card-title sub-section-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                История операций
+            </h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table" id="sub-history-table">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Операция</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody id="sub-history-body">
+                    <tr>
+                        <td colspan="4" class="sub-td-loading">
+                            <div class="sub-spinner sub-spinner-sm"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Модалка: Корзина -->
+    <div class="sub-overlay" id="sub-cart-modal">
+        <div class="sub-modal">
+            <div class="sub-modal-head">
+                <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    </svg>
+                    Корзина
+                </h3>
+                <button class="sub-modal-x" onclick="SubModule.toggleCart()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="sub-modal-content" id="sub-cart-body"></div>
+            <div class="sub-modal-bottom" id="sub-cart-footer" style="display:none;">
+                <div class="sub-cart-total-row">
+                    <span>Итого:</span>
+                    <span class="sub-cart-total-num" id="sub-cart-total">0 ₽</span>
+                </div>
+                <button class="sub-btn sub-btn-primary sub-btn-block" onclick="SubModule.checkout()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+                    </svg>
+                    Оплатить с баланса
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка: Пополнение -->
+    <div class="sub-overlay" id="sub-topup-modal">
+        <div class="sub-modal sub-modal-narrow">
+            <div class="sub-modal-head">
+                <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                    Пополнение баланса
+                </h3>
+                <button class="sub-modal-x" onclick="SubModule.hideTopupModal()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="sub-modal-content">
+                <p class="sub-topup-hint">Введите сумму от 100 до 10 000 ₽</p>
+                <div class="sub-topup-row">
+                    <input type="number" id="sub-topup-input" class="sub-input"
+                           placeholder="Сумма" min="100" max="10000">
+                    <button class="sub-btn sub-btn-primary" onclick="SubModule.processTopup()">
+                        Пополнить
+                    </button>
+                </div>
+                <div class="sub-quick-row">
+                    <button class="sub-quick" onclick="SubModule.setTopup(500)">500 ₽</button>
+                    <button class="sub-quick" onclick="SubModule.setTopup(1000)">1 000 ₽</button>
+                    <button class="sub-quick" onclick="SubModule.setTopup(2000)">2 000 ₽</button>
+                    <button class="sub-quick" onclick="SubModule.setTopup(3000)">3 000 ₽</button>
+                    <button class="sub-quick" onclick="SubModule.setTopup(5000)">5 000 ₽</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Уведомление -->
+    <div class="sub-toast" id="sub-toast">
+        <span class="sub-toast-icon" id="sub-toast-icon"></span>
+        <span class="sub-toast-msg" id="sub-toast-msg"></span>
+    </div>
+
+</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальные окна -->
+    <div class="modal" id="payment-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Пополнение баланса</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Сумма пополнения (руб.)</label>
+                    <input type="number" id="payment-amount" class="form-control" min="100" max="10000">
+                </div>
+                <div class="form-group">
+                    <label>Способ оплаты</label>
+                    <select id="payment-method" class="form-control">
+                        <option value="card">Банковская карта</option>
+                        <option value="sbp">СБП (Система быстрых платежей)</option>
+                        <option value="cash">Наличные в кассе</option>
+                    </select>
+                </div>
+                <div class="payment-preview">
+                    <p>К оплате: <strong id="payment-total">0</strong> руб.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">Отмена</button>
+                <button class="btn btn-primary" id="confirm-payment">
+                    <i class="fas fa-credit-card"></i> Оплатить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="order-modal">
+        <div class="modal-content">
+            <!-- Контент заказа -->
+        </div>
+    </div>
+<!-- Модальное окно для отзыва -->
+<div class="modal" id="review-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Написать отзыв</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="review-form">
+                <div class="form-group">
+                    <label for="review-name">Имя</label>
+                    <input type="text" id="review-name" class="form-control" 
+                           placeholder="Ваше имя" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Оценка</label>
+                    <div class="rating-stars">
+                        <div class="stars-container">
+                            <span class="star" data-value="1"><i class="far fa-star"></i></span>
+                            <span class="star" data-value="2"><i class="far fa-star"></i></span>
+                            <span class="star" data-value="3"><i class="far fa-star"></i></span>
+                            <span class="star" data-value="4"><i class="far fa-star"></i></span>
+                            <span class="star" data-value="5"><i class="far fa-star"></i></span>
+                        </div>
+                        <input type="hidden" id="review-rating" name="rating" required>
+                        <div class="rating-text">
+                            <span id="rating-text">Выберите оценку</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="review-text">Текст отзыва</label>
+                    <textarea id="review-text" class="form-control" 
+                              rows="4" placeholder="Поделитесь вашими впечатлениями..." 
+                              required></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary modal-close">Отмена</button>
+            <button class="btn btn-primary" id="submit-review">
+                <i class="fas fa-paper-plane"></i> Отправить отзыв
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Уведомления -->
+<div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+    <script src="js/database.js"></script>
+    <script src="js/student.js"></script>
+</body>
+</html>

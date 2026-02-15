@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система школьного питания - Вход</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+                <h1>Школьное Питание</h1>
+            </div>
+            <p>Автоматизированная система учета питания</p>
+        </div>
+
+        <div class="auth-tabs">
+            <button class="tab-btn active" data-tab="login">Вход</button>
+            <button class="tab-btn" data-tab="register">Регистрация</button>
+        </div>
+
+        <div class="auth-content">
+            <!-- Форма входа -->
+            <div id="login-form" class="auth-form active">
+                <div class="form-group">
+                    <label for="login-email"><i class="fas fa-user"></i> Логин или Email</label>
+                    <input type="text" id="login-email" placeholder="Введите логин или email">
+                </div>
+                <div class="form-group">
+                    <label for="login-password"><i class="fas fa-lock"></i> Пароль</label>
+                    <input type="password" id="login-password" placeholder="Введите пароль">
+                    <span class="toggle-password" data-target="login-password">
+                        <i class="fas fa-eye"></i>
+                    </span>
+                </div>
+                <div class="form-group">
+                    <label for="login-role"><i class="fas fa-user-tag"></i> Роль</label>
+                    <select id="login-role">
+                        <option value="student">Ученик</option>
+                        <option value="cook">Повар</option>
+                        <option value="admin">Администратор</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary btn-block" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
+            </div>
+            <!-- Форма регистрации -->
+            <div id="register-form" class="auth-form">
+                <div class="form-group">
+                    <label for="reg-name"><i class="fas fa-user"></i> ФИО</label>
+                    <input type="text" id="reg-name" placeholder="Иванов Иван Иванович">
+                </div>
+                <div class="form-group">
+                    <label for="reg-email"><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="reg-email" placeholder="example@school.ru">
+                </div>
+                <div class="form-group">
+                    <label for="reg-login"><i class="fas fa-user-circle"></i> Логин</label>
+                    <input type="text" id="reg-login" placeholder="Придумайте логин">
+                </div>
+                <div class="form-group">
+                    <label for="reg-password"><i class="fas fa-lock"></i> Пароль</label>
+                    <input type="password" id="reg-password" placeholder="Не менее 6 символов">
+                    <span class="toggle-password" data-target="reg-password">
+                        <i class="fas fa-eye"></i>
+                    </span>
+                </div>
+                <div class="form-group">
+                    <label for="reg-class"><i class="fas fa-graduation-cap"></i> Класс</label>
+                    <input type="text" id="reg-class" placeholder="Например: 10А">
+               </div>
+               <div class="form-group">
+                     <label for="reg-role"><i class="fas fa-user-tag"></i> Регистрация как</label>
+                     <select id="reg-role">
+                    <option value="student">Ученик</option>
+                    <option value="cook">Повар</option>
+                    <option value="admin">Администратор</option>
+                 </select>
+                </div>
+                <div class="form-group checkbox">
+                    <input type="checkbox" id="reg-terms">
+                    <label for="reg-terms">Согласен с правилами использования системы</label>
+                </div>
+                <button class="btn btn-primary btn-block" id="register-btn">
+                    <i class="fas fa-user-plus"></i> Зарегистрироваться
+                </button>
+            </div>
+        </div>
+
+        <div class="auth-info">
+            <p><i class="fas fa-info-circle"></i> Система позволяет управлять питанием в школе</p>
+        </div>
+    </div>
+
+    <script src="js/database.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+

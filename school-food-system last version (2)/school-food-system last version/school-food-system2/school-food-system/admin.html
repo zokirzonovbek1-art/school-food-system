@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель администратора - Школьное питание</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Дополнительные стили */
+        .chart-placeholder canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        .notification-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 4px solid #007bff;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .notification-item.unread {
+            background: #e3f2fd;
+            border-left-color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="admin.html" class="nav-brand">
+                <i class="fas fa-utensils"></i>
+                <span>Школьное Питание</span>
+            </a>
+            <div class="nav-user">
+                <div class="user-info">
+                    <div class="user-name" id="admin-name">Администратор</div>
+                    <div class="user-role">Администратор системы</div>
+                </div>
+                <div class="user-avatar" id="admin-avatar">
+                    <div class="avatar-initials">АС</div>
+                </div>
+                <button class="btn btn-icon btn-ghost" id="logout-btn" title="Выйти">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <!-- Боковая панель -->
+            <div class="col-3">
+                <div class="card">
+                    <div class="user-profile">
+                        <div class="avatar-upload">
+                            <div class="avatar-preview" id="admin-avatar-preview">
+                                <div class="avatar-initials">АС</div>
+                            </div>
+                        </div>
+                        <h3 id="admin-fullname">Администратор Системы</h3>
+                        <p class="profile-role">Главный администратор</p>
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <i class="fas fa-users"></i>
+                                <span>Всего пользователей: <strong id="total-users">0</strong></span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-ruble-sign"></i>
+                                <span>Общая выручка: <strong id="total-revenue">0</strong> руб.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4 class="card-title">
+                        <i class="fas fa-compass"></i>
+                        Навигация
+                    </h4>
+                    <div class="nav-menu">
+                        <button class="nav-btn active" data-page="dashboard">
+                            <i class="fas fa-chart-line"></i> Статистика
+                        </button>
+                        <button class="nav-btn" data-page="users">
+                            <i class="fas fa-users-cog"></i> Управление пользователями
+                        </button>
+                        <button class="nav-btn" data-page="purchases">
+                            <i class="fas fa-shopping-cart"></i> Заявки на закупку
+                        </button>
+                        <button class="nav-btn" data-page="reports">
+                            <i class="fas fa-file-alt"></i> Отчеты
+                        </button>
+                        <button class="nav-btn" data-page="settings">
+                            <i class="fas fa-cog"></i> Настройки системы
+                        </button>
+                        <button class="nav-btn" data-page="notifications">
+                            <i class="fas fa-bell"></i> Уведомления
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4 class="card-title">
+                        <i class="fas fa-bell"></i>
+                        Последние события
+                    </h4>
+                    <div class="notifications-list" id="admin-notifications">
+                        <!-- Уведомления загружаются динамически -->
+                        <div class="text-center text-muted">Загрузка уведомлений...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Основной контент -->
+            <div class="col-9">
+                <!-- Заголовок страницы -->
+                <div class="page-header">
+                    <h2 id="page-title">Общая статистика</h2>
+                    <div class="header-actions">
+                        <div class="date-filter">
+                            <input type="date" id="stats-date">
+                            <button class="btn btn-sm btn-primary" id="refresh-stats">
+                                <i class="fas fa-sync-alt"></i> Обновить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Статистика -->
+                <div id="dashboard-page" class="page-content active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon primary">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="stat-total-students">0</div>
+                                <div class="stat-label">Всего учеников</div>
+                                <div class="stat-change" id="student-change">0% за месяц</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon success">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="stat-today-orders">0</div>
+                                <div class="stat-label">Заказов сегодня</div>
+                                <div class="stat-value" id="orders-percentage">0%</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon warning">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="stat-pending-purchases">0</div>
+                                <div class="stat-label">Ожидают согласования</div>
+                                <div class="stat-change" id="pending-alert">
+                                    <i class="fas fa-clock"></i> Требуют внимания
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon accent">
+                                <i class="fas fa-ruble-sign"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="stat-total-revenue">0</div>
+                                <div class="stat-label">Выручка, руб.</div>
+                                <div class="stat-change" id="revenue-change">0%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-chart-bar"></i>
+                                        Распределение по классам
+                                    </h3>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="classDistributionChart" width="400" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-chart-line"></i>
+                                        Динамика заказов
+                                    </h3>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="ordersTrendChart" width="400" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Критические события
+                            </h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="critical-events-table">
+                                <thead>
+                                    <tr>
+                                        <th>Дата</th>
+                                        <th>Тип</th>
+                                        <th>Описание</th>
+                                        <th>Приоритет</th>
+                                        <th>Статус</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="6" class="text-center">Загрузка событий...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+<!-- Обновляем секцию управления пользователями -->
+<div id="users-page" class="page-content">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-users-cog"></i>
+                Управление пользователями
+            </h3>
+            <div class="header-actions">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Поиск пользователей..." id="user-search">
+                    <button class="search-button" id="search-users">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="add-user-btn">
+                        <i class="fas fa-user-plus"></i> Добавить
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Добавляем фильтры -->
+        <div class="user-filters mb-3">
+            <div class="btn-group">
+                <button class="btn btn-sm btn-outline-primary active" data-filter="all">Все</button>
+                <button class="btn btn-sm btn-outline-primary" data-filter="active">Активные</button>
+                <button class="btn btn-sm btn-outline-primary" data-filter="inactive">Неактивные</button>
+                <button class="btn btn-sm btn-outline-primary" data-filter="new">Новые (сегодня)</button>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="students-tab">
+                <i class="fas fa-graduation-cap"></i> Ученики
+            </button>
+            <button class="tab" data-tab="cooks-tab">
+                <i class="fas fa-utensil-spoon"></i> Повара
+            </button>
+            <button class="tab" data-tab="admins-tab">
+                <i class="fas fa-user-shield"></i> Администраторы
+            </button>
+        </div>
+        
+        <!-- Контент для вкладки учеников -->
+        <div class="tab-content active" id="students-tab">
+            <div class="table-responsive">
+                <table class="table" id="students-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ФИО</th>
+                            <th>Класс</th>
+                            <th>Email</th>
+                            <th>Баланс</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="8" class="text-center">Загрузка учеников...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Контент для вкладки поваров -->
+        <div class="tab-content" id="cooks-tab">
+            <div class="table-responsive">
+                <table class="table" id="cooks-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ФИО</th>
+                            <th>Должность</th>
+                            <th>Email</th>
+                            <th>Телефон</th>
+                            <th>Дата приема</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="8" class="text-center">Загрузка поваров...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Контент для вкладки администраторов -->
+        <div class="tab-content" id="admins-tab">
+            <div class="table-responsive">
+                <table class="table" id="admins-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ФИО</th>
+                            <th>Роль</th>
+                            <th>Email</th>
+                            <th>Телефон</th>
+                            <th>Уровень доступа</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="8" class="text-center">Загрузка администраторов...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Обновляем модальное окно добавления пользователя -->
+<div class="modal" id="add-user-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-user-plus"></i>
+                Добавить пользователя
+            </h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="add-user-form">
+                <div class="form-group">
+                    <label class="form-label">Тип пользователя *</label>
+                    <select class="form-control" id="new-user-role" required>
+                        <option value="">Выберите тип</option>
+                        <option value="student">Ученик</option>
+                        <option value="cook">Повар</option>
+                        <option value="admin">Администратор</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ФИО *</label>
+                    <input type="text" class="form-control" id="new-user-name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email *</label>
+                    <input type="email" class="form-control" id="new-user-email" required>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label class="form-label">Логин *</label>
+                            <input type="text" class="form-control" id="new-user-login" required>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label class="form-label">Пароль *</label>
+                            <input type="password" class="form-control" id="new-user-password" required minlength="6">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Поля для ученика -->
+                <div class="student-fields" style="display: none;">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="form-label">Класс *</label>
+                                <input type="text" class="form-control" id="new-user-class" placeholder="10А">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="form-label">Баланс (руб.)</label>
+                                <input type="number" class="form-control" id="new-user-balance" value="0" min="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Поля для повара -->
+                <div class="cook-fields" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Должность *</label>
+                        <select class="form-control" id="new-user-position">
+                            <option value="chef">Шеф-повар</option>
+                            <option value="cook">Повар</option>
+                            <option value="assistant">Помощник повара</option>
+                            <option value="pastry">Кондитер</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="form-label">Дата приема</label>
+                                <input type="date" class="form-control" id="new-user-hire-date">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="form-label">Рабочий график</label>
+                                <select class="form-control" id="new-user-schedule">
+                                    <option value="full">Полный день</option>
+                                    <option value="morning">Утренняя смена</option>
+                                    <option value="evening">Вечерняя смена</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Поля для администратора -->
+                <div class="admin-fields" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Уровень доступа *</label>
+                        <select class="form-control" id="new-user-permission" required>
+                            <option value="super">Супер-администратор</option>
+                            <option value="admin">Администратор</option>
+                            <option value="manager">Менеджер</option>
+                            <option value="viewer">Наблюдатель</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Отдел</label>
+                        <input type="text" class="form-control" id="new-user-department" placeholder="Администрация, IT">
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox">
+                            <input type="checkbox" id="new-user-can-approve" checked>
+                            <span>Может утверждать заявки</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox">
+                            <input type="checkbox" id="new-user-can-edit" checked>
+                            <span>Может редактировать меню</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox">
+                            <input type="checkbox" id="new-user-can-manage-users" checked>
+                            <span>Может управлять пользователями</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="checkbox">
+                        <input type="checkbox" id="new-user-active" checked>
+                        <span>Активный аккаунт</span>
+                    </label>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary modal-close">Отмена</button>
+            <button class="btn btn-primary" id="save-user-btn">
+                <i class="fas fa-save"></i> Сохранить
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Добавляем модальное окно для детального просмотра пользователя -->
+<div class="modal" id="user-details-modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-user"></i>
+                Информация о пользователе
+            </h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="user-details-content">
+                <!-- Контент загружается динамически -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary modal-close">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<!-- Добавляем модальное окно для массовых действий -->
+<div class="modal" id="bulk-actions-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-users"></i>
+                Массовые действия
+            </h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Действие</label>
+                <select class="form-control" id="bulk-action">
+                    <option value="activate">Активировать</option>
+                    <option value="deactivate">Деактивировать</option>
+                    <option value="reset_password">Сбросить пароли</option>
+                    <option value="send_email">Отправить email</option>
+                    <option value="export">Экспортировать</option>
+                </select>
+            </div>
+            <div class="form-group" id="bulk-email-content" style="display: none;">
+                <label class="form-label">Текст сообщения</label>
+                <textarea class="form-control" id="bulk-email-text" rows="4" placeholder="Введите текст сообщения..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Выбрано пользователей: <span id="selected-users-count">0</span></label>
+                <div id="selected-users-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 4px; margin-top: 10px;">
+                    <!-- Список выбранных пользователей -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary modal-close">Отмена</button>
+            <button class="btn btn-primary" id="execute-bulk-action">
+                <i class="fas fa-play"></i> Выполнить
+            </button>
+        </div>
+    </div>
+</div>
+<!-- ======== СТРАНИЦА ЗАЯВОК НА ЗАКУПКУ ======== -->
+<div id="purchases-page" class="page-content">
+
+    <!-- Заголовок + поиск -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <h3 style="margin:0;">Заявки на закупку</h3>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <input type="text" id="purchase-search" class="form-control"
+                   placeholder="Поиск по заявкам..."
+                   style="width:250px; padding:8px 12px; border:1px solid #ced4da; border-radius:6px;">
+            <button id="search-purchases" class="btn btn-primary"
+                    style="padding:8px 16px; border:none; border-radius:6px; background:#007bff; color:#fff; cursor:pointer;">
+                <i class="fas fa-search"></i> Найти
+            </button>
+        </div>
+    </div>
+
+    <!-- Вкладки статусов -->
+    <div class="purchase-tabs" style="display:flex; gap:0; margin-bottom:0; border-bottom:2px solid #dee2e6;">
+        <button class="purchase-tab active" data-status="pending"
+                style="padding:12px 24px; border:none; border-bottom:3px solid #007bff;
+                       background:#fff; cursor:pointer; font-weight:600; color:#007bff;
+                       display:flex; align-items:center; gap:8px; transition:all 0.2s;">
+            <i class="fas fa-clock"></i>
+            Ожидающие
+            <span id="count-pending" class="tab-badge"
+                  style="background:#ffc107; color:#333; padding:2px 8px; border-radius:10px;
+                         font-size:12px; font-weight:700;">0</span>
+        </button>
+        <button class="purchase-tab" data-status="approved"
+                style="padding:12px 24px; border:none; border-bottom:3px solid transparent;
+                       background:#fff; cursor:pointer; font-weight:500; color:#666;
+                       display:flex; align-items:center; gap:8px; transition:all 0.2s;">
+            <i class="fas fa-check-circle"></i>
+            Одобренные
+            <span id="count-approved" class="tab-badge"
+                  style="background:#28a745; color:#fff; padding:2px 8px; border-radius:10px;
+                         font-size:12px; font-weight:700;">0</span>
+        </button>
+        <button class="purchase-tab" data-status="rejected"
+                style="padding:12px 24px; border:none; border-bottom:3px solid transparent;
+                       background:#fff; cursor:pointer; font-weight:500; color:#666;
+                       display:flex; align-items:center; gap:8px; transition:all 0.2s;">
+            <i class="fas fa-times-circle"></i>
+            Отклонённые
+            <span id="count-rejected" class="tab-badge"
+                  style="background:#dc3545; color:#fff; padding:2px 8px; border-radius:10px;
+                         font-size:12px; font-weight:700;">0</span>
+        </button>
+        <button class="purchase-tab" data-status="completed"
+                style="padding:12px 24px; border:none; border-bottom:3px solid transparent;
+                       background:#fff; cursor:pointer; font-weight:500; color:#666;
+                       display:flex; align-items:center; gap:8px; transition:all 0.2s;">
+            <i class="fas fa-box-open"></i>
+            Выполненные
+            <span id="count-completed" class="tab-badge"
+                  style="background:#6c757d; color:#fff; padding:2px 8px; border-radius:10px;
+                         font-size:12px; font-weight:700;">0</span>
+        </button>
+    </div>
+
+    <!-- Контейнер для таблицы (один на все вкладки) -->
+    <div id="purchases-table-container"
+         style="background:#fff; border:1px solid #dee2e6; border-top:none;
+                border-radius:0 0 8px 8px; overflow:hidden;">
+        <table id="purchases-table" style="width:100%; border-collapse:collapse;">
+            <thead>
+                <tr style="background:#f8f9fa;">
+                    <th style="padding:12px 16px; text-align:left; border-bottom:1px solid #dee2e6; width:60px;">ID</th>
+                    <th style="padding:12px 16px; text-align:left; border-bottom:1px solid #dee2e6;">Продукт</th>
+                    <th style="padding:12px 16px; text-align:left; border-bottom:1px solid #dee2e6; width:120px;">Кол-во</th>
+                    <th style="padding:12px 16px; text-align:left; border-bottom:1px solid #dee2e6;">Повар</th>
+                    <th style="padding:12px 16px; text-align:left; border-bottom:1px solid #dee2e6;">Причина / Комментарий</th>
+                    <th style="padding:12px 16px; text-align:left; border-bottom:1px solid #dee2e6; width:110px;">Срочность</th>
+                    <th style="padding:12px 16px; text-align:left; border-bottom:1px solid #dee2e6; width:110px;">Дата</th>
+                    <th style="padding:12px 16px; text-align:left; border-bottom:1px solid #dee2e6; width:110px;">Статус</th>
+                    <th style="padding:12px 16px; text-align:center; border-bottom:1px solid #dee2e6; width:140px;">Действия</th>
+                </tr>
+            </thead>
+            <tbody id="purchases-tbody">
+                <tr>
+                    <td colspan="9" style="padding:40px; text-align:center; color:#999;">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <div style="margin-top:10px;">Загрузка заявок...</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Сводка внизу -->
+    <div id="purchases-summary"
+         style="display:flex; gap:20px; margin-top:20px; flex-wrap:wrap;">
+    </div>
+</div>
+<style>
+    /* Вкладки заявок */
+    .purchase-tab:hover {
+        background: #f0f4ff !important;
+        color: #007bff !important;
+    }
+    .purchase-tab.active {
+        color: #007bff !important;
+        border-bottom-color: #007bff !important;
+        font-weight: 600 !important;
+        background: #f8f9ff !important;
+    }
+    .purchase-tab:not(.active) {
+        border-bottom-color: transparent !important;
+    }
+
+    /* Строки таблицы */
+    #purchases-tbody tr:hover {
+        background: #f0f4ff;
+    }
+    #purchases-tbody td {
+        padding: 10px 16px;
+        border-bottom: 1px solid #f0f0f0;
+        vertical-align: middle;
+    }
+
+    /* Бейджи */
+    .badge-pending   { background:#fff3cd; color:#856404; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600; }
+    .badge-approved  { background:#d4edda; color:#155724; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600; }
+    .badge-rejected  { background:#f8d7da; color:#721c24; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600; }
+    .badge-completed { background:#e2e3e5; color:#383d41; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600; }
+
+    .badge-danger  { background:#f8d7da; color:#721c24; padding:4px 10px; border-radius:12px; font-size:12px; }
+    .badge-warning { background:#fff3cd; color:#856404; padding:4px 10px; border-radius:12px; font-size:12px; }
+    .badge-info    { background:#d1ecf1; color:#0c5460; padding:4px 10px; border-radius:12px; font-size:12px; }
+    .badge-success { background:#d4edda; color:#155724; padding:4px 10px; border-radius:12px; font-size:12px; }
+
+    /* Кнопки действий */
+    .action-btn {
+        padding: 6px 10px; border: none; border-radius: 5px;
+        cursor: pointer; font-size: 13px; transition: all 0.2s;
+        display: inline-flex; align-items: center; gap: 4px;
+    }
+    .action-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .action-btn-approve { background:#28a745; color:#fff; }
+    .action-btn-reject  { background:#dc3545; color:#fff; }
+    .action-btn-view    { background:#007bff; color:#fff; }
+    .action-btn-complete{ background:#17a2b8; color:#fff; }
+
+    /* Сводка */
+    .summary-card {
+        flex:1; min-width:180px; padding:16px 20px;
+        background:#fff; border-radius:10px; border:1px solid #e9ecef;
+        box-shadow:0 2px 8px rgba(0,0,0,0.04);
+    }
+    .summary-card h4 { margin:0 0 4px 0; font-size:28px; }
+    .summary-card p  { margin:0; color:#666; font-size:13px; }
+</style>
+                <!-- Отчеты -->
+                <div id="reports-page" class="page-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-file-alt"></i>
+                                Отчеты
+                            </h3>
+                            <div class="header-actions">
+                                <button class="btn btn-primary" id="generate-report-btn">
+                                    <i class="fas fa-download"></i> Создать отчет
+                                </button>
+                                <div class="report-period">
+                                    <input type="date" id="report-start-date">
+                                    <span>по</span>
+                                    <input type="date" id="report-end-date">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="reports-grid">
+                            <div class="report-card">
+                                <div class="report-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <h4>Финансовый отчет</h4>
+                                <p>Доходы и расходы за период</p>
+                                <button class="btn btn-secondary btn-block view-report-btn" data-report="financial">
+                                    <i class="fas fa-eye"></i> Просмотреть
+                                </button>
+                            </div>
+                            <div class="report-card">
+                                <div class="report-icon">
+                                    <i class="fas fa-utensils"></i>
+                                </div>
+                                <h4>Отчет по питанию</h4>
+                                <p>Статистика заказов и посещаемости</p>
+                                <button class="btn btn-secondary btn-block view-report-btn" data-report="meals">
+                                    <i class="fas fa-eye"></i> Просмотреть
+                                </button>
+                            </div>
+                            <div class="report-card">
+                                <div class="report-icon">
+                                    <i class="fas fa-shopping-basket"></i>
+                                </div>
+                                <h4>Отчет по закупкам</h4>
+                                <p>Затраты на продукты и инвентарь</p>
+                                <button class="btn btn-secondary btn-block view-report-btn" data-report="purchases">
+                                    <i class="fas fa-eye"></i> Просмотреть
+                                </button>
+                            </div>
+                            <div class="report-card">
+                                <div class="report-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h4>Отчет по пользователям</h4>
+                                <p>Активность и статистика пользователей</p>
+                                <button class="btn btn-secondary btn-block view-report-btn" data-report="users">
+                                    <i class="fas fa-eye"></i> Просмотреть
+                                </button>
+                            </div>
+                        </div>
+                        <div class="report-preview mt-4" id="report-preview" style="display: none;">
+                            <h4>Предварительный просмотр отчета</h4>
+                            <div class="report-content" id="report-content"></div>
+                            <div class="mt-3">
+                                <button class="btn btn-success" id="download-report">
+                                    <i class="fas fa-file-excel"></i> Скачать Excel
+                                </button>
+                                <button class="btn btn-info" id="print-report">
+                                    <i class="fas fa-print"></i> Печать
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Настройки системы -->
+                <div id="settings-page" class="page-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-cog"></i>
+                                Настройки системы
+                            </h3>
+                        </div>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label class="form-label">Название школы</label>
+                                <input type="text" class="form-control" id="school-name" value="">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Рабочие часы столовой</label>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <input type="time" class="form-control" id="work-start" value="">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="time" class="form-control" id="work-end" value="">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Минимальный баланс для заказа</label>
+                                <input type="number" class="form-control" id="min-balance" value="">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Уведомления</label>
+                                <div class="checkbox-group">
+                                    <label class="checkbox">
+                                        <input type="checkbox" id="email-notifications">
+                                        <span>Email уведомления</span>
+                                    </label>
+                                    <label class="checkbox">
+                                        <input type="checkbox" id="order-notifications">
+                                        <span>Уведомления о заказах</span>
+                                    </label>
+                                    <label class="checkbox">
+                                        <input type="checkbox" id="low-stock-notifications">
+                                        <span>Уведомления о низком запасе</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" id="save-settings-btn">
+                                <i class="fas fa-save"></i> Сохранить настройки
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Уведомления -->
+                <div id="notifications-page" class="page-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-bell"></i>
+                                Управление уведомлениями
+                            </h3>
+                            <div class="header-actions">
+                                <button class="btn btn-primary" id="send-notification-btn">
+                                    <i class="fas fa-paper-plane"></i> Отправить уведомление
+                                </button>
+                            </div>
+                        </div>
+                        <div class="notifications-manager">
+                            <div class="row">
+                                <div class="col-8">
+                                    <div class="notification-filters">
+                                        <button class="btn btn-sm btn-outline-primary active">Все</button>
+                                        <button class="btn btn-sm btn-outline-primary">Непрочитанные</button>
+                                        <button class="btn btn-sm btn-outline-primary">Системные</button>
+                                        <button class="btn btn-sm btn-outline-primary">Оплаты</button>
+                                    </div>
+                                    <div class="notifications-list" id="notifications-list-full">
+                                        <!-- Полный список уведомлений -->
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="card">
+                                        <h5>Статистика уведомлений</h5>
+                                        <div id="notifications-stats">
+                                            <!-- Статистика будет загружена динамически -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальные окна -->
+    <div class="modal" id="add-user-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-user-plus"></i>
+                    Добавить пользователя
+                </h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-user-form">
+                    <div class="form-group">
+                        <label class="form-label">Роль</label>
+                        <select class="form-control" id="new-user-role" required>
+                            <option value="">Выберите роль</option>
+                            <option value="student">Ученик</option>
+                            <option value="cook">Повар</option>
+                            <option value="admin">Администратор</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ФИО</label>
+                        <input type="text" class="form-control" id="new-user-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="new-user-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Логин</label>
+                        <input type="text" class="form-control" id="new-user-login" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" class="form-control" id="new-user-password" required minlength="6">
+                    </div>
+                    <div class="form-group student-fields" style="display: none;">
+                        <label class="form-label">Класс</label>
+                        <input type="text" class="form-control" id="new-user-class">
+                    </div>
+                    <div class="form-group cook-fields" style="display: none;">
+                        <label class="form-label">Должность</label>
+                        <input type="text" class="form-control" id="new-user-specialization">
+                    </div>
+                    <div class="form-group student-fields" style="display: none;">
+                        <label class="form-label">Баланс (руб.)</label>
+                        <input type="number" class="form-control" id="new-user-balance" value="0" min="0">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">Отмена</button>
+                <button class="btn btn-primary" id="save-user-btn">
+                    <i class="fas fa-save"></i> Сохранить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="edit-user-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-user-edit"></i>
+                    Редактировать пользователя
+                </h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-user-form">
+                    <input type="hidden" id="edit-user-id">
+                    <div class="form-group">
+                        <label class="form-label">ФИО</label>
+                        <input type="text" class="form-control" id="edit-user-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="edit-user-email" required>
+                    </div>
+                    <div class="form-group" id="edit-user-class-group">
+                        <label class="form-label">Класс</label>
+                        <input type="text" class="form-control" id="edit-user-class">
+                    </div>
+                    <div class="form-group" id="edit-user-balance-group">
+                        <label class="form-label">Баланс (руб.)</label>
+                        <input type="number" class="form-control" id="edit-user-balance" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Статус</label>
+                        <select class="form-control" id="edit-user-status">
+                            <option value="active">Активен</option>
+                            <option value="inactive">Неактивен</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">Отмена</button>
+                <button class="btn btn-primary" id="update-user-btn">
+                    <i class="fas fa-save"></i> Обновить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="approve-purchase-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-check-circle"></i>
+                    Согласование заявки
+                </h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="purchase-details">
+                    <!-- Детали заявки будут загружены динамически -->
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Комментарий</label>
+                    <textarea class="form-control" id="approval-comment" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" id="confirm-approve-btn">
+                    <i class="fas fa-check"></i> Одобрить
+                </button>
+                <button class="btn btn-danger" id="confirm-reject-btn">
+                    <i class="fas fa-times"></i> Отклонить
+                </button>
+                <button class="btn btn-secondary modal-close">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="send-notification-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-paper-plane"></i>
+                    Отправить уведомление
+                </h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="send-notification-form">
+                    <div class="form-group">
+                        <label class="form-label">Тип уведомления</label>
+                        <select class="form-control" id="notification-type">
+                            <option value="info">Информационное</option>
+                            <option value="warning">Предупреждение</option>
+                            <option value="alert">Важное</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Получатели</label>
+                        <select class="form-control" id="notification-recipients" multiple>
+                            <option value="all">Все пользователи</option>
+                            <option value="students">Все ученики</option>
+                            <option value="cooks">Все повара</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Заголовок</label>
+                        <input type="text" class="form-control" id="notification-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Сообщение</label>
+                        <textarea class="form-control" id="notification-message" rows="4" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">Отмена</button>
+                <button class="btn btn-primary" id="send-notification-confirm">
+                    <i class="fas fa-paper-plane"></i> Отправить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Добавить в admin.html после approve-purchase-modal -->
+    <div id="reject-purchase-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-times-circle text-danger"></i>
+                    Отклонить заявку на закупку
+                </h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="reject-purchase-details">
+                    <!-- Детали заявки будут загружены здесь -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">Отмена</button>
+                <button class="btn btn-danger" id="confirm-reject-btn">Отклонить заявку</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

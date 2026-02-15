@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель повара - Школьное питание</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+  /* ===== УВЕДОМЛЕНИЯ ===== */
+.notification {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 1000;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    min-width: 340px;
+    max-width: 440px;
+    padding: 18px 22px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%);
+    border: 1px solid rgba(67, 97, 238, 0.15);
+    box-shadow:
+        0 4px 6px -1px rgba(67, 97, 238, 0.1),
+        0 12px 28px -4px rgba(67, 97, 238, 0.18),
+        0 0 0 1px rgba(67, 97, 238, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: top right;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Левая акцентная полоска */
+.notification::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #4361ee, #3a0ca3);
+    border-radius: 16px 0 0 16px;
+}
+
+/* Прогресс-бар снизу */
+.notification::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #4361ee, #4cc9f0);
+    border-radius: 0 0 0 16px;
+    animation: progressShrink 4s linear forwards;
+}
+
+/* Иконка */
+.notification .notification-icon {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #4361ee, #3a0ca3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+}
+
+/* Текстовый блок */
+.notification .notification-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification .notification-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.notification .notification-message {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+/* Кнопка закрытия */
+.notification .notification-close {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.notification .notification-close:hover {
+    background: rgba(67, 97, 238, 0.1);
+    color: #4361ee;
+}
+
+/* Типы уведомлений */
+.notification.notification-success::before {
+    background: linear-gradient(180deg, #22c55e, #16a34a);
+}
+.notification.notification-success .notification-icon {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.notification.notification-warning::before {
+    background: linear-gradient(180deg, #f59e0b, #d97706);
+}
+.notification.notification-warning .notification-icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.notification.notification-error::before {
+    background: linear-gradient(180deg, #ef4444, #dc2626);
+}
+.notification.notification-error .notification-icon {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Свечение при появлении */
+.notification.notification-glow {
+    box-shadow:
+        0 4px 6px -1px rgba(67, 97, 238, 0.1),
+        0 12px 28px -4px rgba(67, 97, 238, 0.18),
+        0 0 20px rgba(67, 97, 238, 0.12);
+}
+
+/* ===== АНИМАЦИИ ===== */
+@keyframes slideIn {
+    0% {
+        transform: translateX(120%) scale(0.9);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    0% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(120%) scale(0.85);
+        opacity: 0;
+    }
+}
+
+@keyframes progressShrink {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+/* Пауза прогресса при наведении */
+.notification:hover::after {
+    animation-play-state: paused;
+}
+
+.notification:hover {
+    box-shadow:
+        0 4px 6px -1px rgba(67, 97, 238, 0.12),
+        0 16px 32px -4px rgba(67, 97, 238, 0.22),
+        0 0 24px rgba(67, 97, 238, 0.1);
+    transform: translateY(-2px);
+    transition: all 0.25s ease;
+}
+
+/* Класс для анимации исчезновения */
+.notification.removing {
+    animation: slideOut 0.35s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+}
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="cook.html" class="nav-brand">
+                <i class="fas fa-utensils"></i>
+                <span>Школьное Питание</span>
+            </a>
+            <div class="nav-user">
+                <div class="user-info">
+                    <div class="user-name" id="user-name"></div>
+                    <div class="user-role">Шеф-повар</div>
+                </div>
+                <div class="user-avatar" id="user-avatar">
+                    <div class="avatar-initials" id="user-initials"></div>
+                </div>
+                <button class="btn btn-icon btn-ghost" id="logout-btn" title="Выйти">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <!-- Боковая панель -->
+            <div class="col-3">
+                <div class="card">
+                    <div class="user-profile">
+                        <div class="avatar-upload">
+                            <div class="avatar-preview" id="avatar-preview">
+                                <div class="avatar-initials" id="profile-initials"></div>
+                            </div>
+                            <div class="avatar-edit">
+                                <i class="fas fa-camera"></i>
+                                <input type="file" id="avatar-upload" accept="image/*">
+                            </div>
+                        </div>
+                        <h3 id="profile-name"></h3>
+                        <p class="profile-role">Шеф-повар</p>
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <i class="fas fa-utensil-spoon"></i>
+                                <span>Сегодня приготовлено: <strong id="today-prepared">0</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4 class="card-title">
+                        <i class="fas fa-compass"></i>
+                        Навигация
+                    </h4>
+                    <div class="nav-menu">
+                        <button class="nav-btn active" data-page="dashboard">
+                            <i class="fas fa-chart-line"></i> Статистика
+                        </button>
+                        <button class="nav-btn" data-page="menu-management">
+                            <i class="fas fa-clipboard-list"></i> Управление меню
+                        </button>
+                        <button class="nav-btn" data-page="orders">
+                            <i class="fas fa-receipt"></i> Заказы на сегодня
+                        </button>
+                        <button class="nav-btn" data-page="inventory">
+                            <i class="fas fa-boxes"></i> Склад и инвентарь
+                        </button>
+                        <button class="nav-btn" data-page="purchases">
+                            <i class="fas fa-shopping-cart"></i> Заявки на закупку
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4 class="card-title">
+                        <i class="fas fa-bell"></i>
+                        Уведомления
+                    </h4>
+                    <div class="notifications-list" id="cook-notifications">
+                        <div class="notification-item">
+                            <i class="fas fa-exclamation-triangle text-warning"></i>
+                            <div>
+                                <strong>Добро пожаловать в систему</strong>
+                                <small>Загружаем данные...</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Основной контент -->
+            <div class="col-9">
+                <!-- Заголовок страницы -->
+                <div class="page-header">
+                    <h2 id="page-title">Статистика за сегодня</h2>
+                    <div class="header-actions">
+                        <div class="date-filter">
+                            <input type="date" id="stats-date" value="">
+                            <button class="btn btn-sm btn-primary" id="refresh-stats">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Статистика -->
+                <div id="dashboard-page" class="page-content active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon primary">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="total-orders">0</div>
+                                <div class="stat-label">Всего заказов</div>
+                                <div class="stat-change" id="orders-change">
+                                    <i class="fas fa-minus"></i> Загрузка...
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="completed-orders">0</div>
+                                <div class="stat-label">Выполнено</div>
+                                <div class="stat-value" id="completed-percent">0%</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon warning">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="pending-orders">0</div>
+                                <div class="stat-label">В ожидании</div>
+                                <div class="stat-change" id="pending-change">
+                                    <i class="fas fa-clock"></i> Загрузка...
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon accent">
+                                <i class="fas fa-ruble-sign"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="total-revenue">0</div>
+                                <div class="stat-label">Выручка, руб.</div>
+                                <div class="stat-change" id="revenue-change">
+                                    <i class="fas fa-minus"></i> Загрузка...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="chart-container">
+                                <div class="chart-header">
+                                    <h3 class="chart-title">Популярные блюда</h3>
+                                    <div class="chart-legend">
+                                        <div class="legend-item">
+                                            <span class="legend-color" style="background: #4361ee;"></span>
+                                            <span>Завтраки</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <span class="legend-color" style="background: #7209b7;"></span>
+                                            <span>Обеды</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chart-placeholder" style="height: 300px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 8px;">
+                                    <div class="text-center">
+                                        <i class="fas fa-chart-bar fa-3x text-gray mb-3"></i>
+                                        <p>График популярности блюд</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="chart-container">
+                                <div class="chart-header">
+                                    <h3 class="chart-title">Заказы по времени</h3>
+                                </div>
+                                <div class="chart-placeholder" style="height: 300px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 8px;">
+                                    <div class="text-center">
+                                        <i class="fas fa-chart-line fa-3x text-gray mb-3"></i>
+                                        <p>Распределение заказов в течение дня</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-fire"></i>
+                                Горячие заказы
+                            </h3>
+                            <button class="btn btn-primary" id="refresh-orders">
+                                <i class="fas fa-sync-alt"></i> Обновить
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="hot-orders-table">
+                                <thead>
+                                    <tr>
+                                        <th>Время</th>
+                                        <th>Блюдо</th>
+                                        <th>Класс</th>
+                                        <th>Ученик</th>
+                                        <th>Статус</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="6" class="text-center">
+                                            <div class="empty-state">
+                                                <i class="fas fa-utensils fa-2x"></i>
+                                                <p>Загружаем заказы...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Управление меню -->
+                <div id="menu-management-page" class="page-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-clipboard-list"></i>
+                                Управление меню
+                            </h3>
+                            <div class="header-actions">
+                                <button class="btn btn-primary" id="add-dish-btn">
+                                    <i class="fas fa-plus"></i> Добавить блюдо
+                                </button>
+                            </div>
+                        </div>
+                        <div class="tabs">
+                            <button class="tab active" data-tab="breakfast-menu">
+                                <i class="fas fa-sun"></i> Завтраки
+                            </button>
+                            <button class="tab" data-tab="lunch-menu">
+                                <i class="fas fa-utensils"></i> Обеды
+                            </button>
+                            <button class="tab" data-tab="archive-menu">
+                                <i class="fas fa-archive"></i> Архив
+                            </button>
+                        </div>
+                        <div class="tab-content active" id="breakfast-menu">
+                            <div class="menu-grid" id="breakfast-dishes">
+                                <div class="empty-state">
+                                    <i class="fas fa-utensils"></i>
+                                    <p>Загружаем меню завтраков...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-content" id="lunch-menu">
+                            <div class="menu-grid" id="lunch-dishes">
+                                <div class="empty-state">
+                                    <i class="fas fa-utensils"></i>
+                                    <p>Загружаем меню обедов...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Заказы на сегодня -->
+                <div id="orders-page" class="page-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-receipt"></i>
+                                Заказы на сегодня
+                            </h3>
+                            <div class="order-filters">
+                                <select class="form-control" id="order-type-filter">
+                                    <option value="all">Все заказы</option>
+                                    <option value="breakfast">Только завтраки</option>
+                                    <option value="lunch">Только обеды</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="orders-summary">
+                            <div class="summary-cards">
+                                <div class="summary-card">
+                                    <div class="summary-value" id="total-breakfast">0</div>
+                                    <div class="summary-label">Завтраки</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="summary-value" id="total-lunch">0</div>
+                                    <div class="summary-label">Обеды</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="summary-value" id="special-orders">0</div>
+                                    <div class="summary-label">Особые заказы</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="today-orders-table">
+                                <thead>
+                                    <tr>
+                                        <th>№</th>
+                                        <th>Блюдо</th>
+                                        <th>Тип</th>
+                                        <th>Класс</th>
+                                        <th>Особые указания</th>
+                                        <th>Статус</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="7" class="text-center">
+                                            <div class="empty-state">
+                                                <i class="fas fa-receipt"></i>
+                                                <p>Загружаем заказы...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Склад и инвентарь -->
+                <div id="inventory-page" class="page-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-boxes"></i>
+                                Склад и инвентарь
+                            </h3>
+                            <div class="header-actions">
+                                <div class="search-box">
+                                    <input type="text" class="search-input" placeholder="Поиск по инвентарю...">
+                                    <button class="search-button">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                                <button class="btn btn-primary" id="add-inventory-btn">
+                                    <i class="fas fa-plus"></i> Добавить
+                                </button>
+                            </div>
+                        </div>
+                        <div class="inventory-stats">
+                            <div class="inventory-stat">
+                                <div class="stat-label">Всего позиций</div>
+                                <div class="stat-value" id="total-items">0</div>
+                            </div>
+                            <div class="inventory-stat">
+                                <div class="stat-label">Низкий запас</div>
+                                <div class="stat-value warning" id="low-stock">0</div>
+                            </div>
+                            <div class="inventory-stat">
+                                <div class="stat-label">Закончилось</div>
+                                <div class="stat-value danger" id="out-of-stock">0</div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="inventory-table">
+                                <thead>
+                                    <tr>
+                                        <th>Продукт</th>
+                                        <th>Количество</th>
+                                        <th>Ед. изм.</th>
+                                        <th>Минимум</th>
+                                        <th>Срок годности</th>
+                                        <th>Статус</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="7" class="text-center">
+                                            <div class="empty-state">
+                                                <i class="fas fa-boxes"></i>
+                                                <p>Загружаем инвентарь...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Заявки на закупку -->
+                <div id="purchases-page" class="page-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-shopping-cart"></i>
+                                Заявки на закупку
+                            </h3>
+                            <button class="btn btn-primary" id="new-purchase-btn">
+                                <i class="fas fa-plus"></i> Новая заявка
+                            </button>
+                        </div>
+                        <div class="tabs">
+                            <button class="tab active" data-tab="pending-purchases">
+                                <i class="fas fa-clock"></i> Ожидание
+                            </button>
+                            <button class="tab" data-tab="approved-purchases">
+                                <i class="fas fa-check"></i> Одобрено
+                            </button>
+                            <button class="tab" data-tab="rejected-purchases">
+                                <i class="fas fa-times"></i> Отклонено
+                            </button>
+                        </div>
+                        <div class="tab-content active" id="pending-purchases">
+                            <div class="purchase-requests" id="pending-requests">
+                                <div class="empty-state">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    <p>Загружаем заявки...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно добавления блюда -->
+    <div class="modal" id="add-dish-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-utensils"></i>
+                    Добавить новое блюдо
+                </h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="dish-form">
+                    <div class="form-group">
+                        <label class="form-label">Название блюда</label>
+                        <input type="text" class="form-control" id="dish-name" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="form-label">Тип блюда</label>
+                                <select class="form-control" id="dish-type" required>
+                                    <option value="breakfast">Завтрак</option>
+                                    <option value="lunch">Обед</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="form-label">Цена (руб.)</label>
+                                <input type="number" class="form-control" id="dish-price" min="50" max="500" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Описание</label>
+                        <textarea class="form-control" id="dish-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Калорийность</label>
+                        <input type="number" class="form-control" id="dish-calories" min="100" max="1000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Аллергены</label>
+                        <div class="allergens-select">
+                            <div class="selected-allergens" id="selected-allergens"></div>
+                            <select class="form-control" id="allergens-select" multiple>
+                                <option value="gluten">Глютен</option>
+                                <option value="milk">Молоко</option>
+                                <option value="eggs">Яйца</option>
+                                <option value="nuts">Орехи</option>
+                                <option value="fish">Рыба</option>
+                                <option value="soy">Соя</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close">Отмена</button>
+                <button class="btn btn-primary" id="save-dish-btn">
+                    <i class="fas fa-save"></i> Сохранить блюдо
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/database.js"></script>
+    <script src="js/cook.js"></script>
+</body>
+</html>
